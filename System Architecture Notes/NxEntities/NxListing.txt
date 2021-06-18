@@ -1,0 +1,8 @@
+
+CREATE TABLE _listings_ (_uuid_ text, datetime text, _description_ text);
+
+type NxListing struct {
+    uuid        string
+    datetime    string
+    description string
+}

@@ -7,9 +7,9 @@ import (
 	"github.com/rivo/tview" // https://pkg.go.dev/github.com/rivo/tview
 )
 
-type Nx19 struct {
-	announce string
-	uuid     string
+type Nx10 struct {
+	description string
+	uuid        string
 }
 
 type Nx27 struct {
@@ -31,7 +31,7 @@ type NxListing struct {
 	description string
 }
 
-// NxEntity is representing a super type of Nx27 and NxEvent
+// NxEntity is representing a super type of Nx10, Nx27, NxEvent and NxListing
 type NxEntity struct {
 	uuid       string
 	entityType string
@@ -48,30 +48,39 @@ func updateGridContents(grid *tview.Grid, mainElement tview.Primitive, commandFi
 		AddItem(commandField, 1, 0, 1, 1, 0, 0, true)
 }
 
+func makeTextViewFromStrings(strs []string, selectedLineNumber int) *tview.TextView {
+	// text := strings.Join(strs[:], "\n")
+
+	text := ""
+	for i, v := range strs {
+		separator := "\n"
+		if i == 0 {
+			separator = ""
+		}
+		if i == selectedLineNumber {
+			v = v + " (this one)"
+		}
+		text = text + separator + v
+	}
+
+	return tview.NewTextView().
+		SetTextAlign(tview.AlignLeft).
+		SetText(text)
+}
+
 func main() {
 	fmt.Println("Nyx")
-	fmt.Println("Nx19", Nx19{"announce", "6c249256-2379-4683-bc31-23bbcce4fd39"})
+	fmt.Println("Nx19", Nx10{"node description", "6c249256-2379-4683-bc31-23bbcce4fd39"})
 	fmt.Println("Nx27", Nx27{"e1cec0c2-f1ad-4411-9f59-d25cf6bdfa4b", "2021-05-16T17:41:45Z", "unique-string", "a301c45a-e0d1"})
-	fmt.Println("NxEvent", NxEvent{"6c249256-2379-4683-bc31-23bbcce4fd39", "2021-05-16T18:14:12Z", "2021-05-16", "description"})
-	fmt.Println("NxListing", NxListing{"6c249256-2379-4683-bc31-23bbcce4fd39", "2021-05-16T18:14:12Z", "description"})
+	fmt.Println("NxEvent", NxEvent{"6c249256-2379-4683-bc31-23bbcce4fd39", "2021-05-16T18:14:12Z", "2021-05-16", "event description"})
+	fmt.Println("NxListing", NxListing{"6c249256-2379-4683-bc31-23bbcce4fd39", "2021-05-16T18:14:12Z", "listing description"})
 	fmt.Println("NxEntity", NxEntity{"6c249256-2379-4683-bc31-23bbcce4fd39", "Nx27", "2021-05-16T18:14:12Z"})
 
 	app := tview.NewApplication()
 
 	grid := tview.NewGrid()
 
-	textView := tview.NewTextView().
-		SetTextAlign(tview.AlignLeft).
-		SetText("Hello World")
-
-	list := tview.NewList().
-		AddItem("List item 1", "Some explanatory text", 'a', nil).
-		AddItem("List item 2", "Some explanatory text", 'b', nil).
-		AddItem("List item 3", "Some explanatory text", 'c', nil).
-		AddItem("List item 4", "Some explanatory text", 'd', nil).
-		AddItem("Quit", "Press to exit", 'q', func() {
-			app.Stop()
-		})
+	textView1 := makeTextViewFromStrings([]string{"Hello World"}, -1)
 
 	commandField := tview.NewInputField()
 
@@ -85,17 +94,18 @@ func main() {
 				return
 			}
 			if text == "list" {
-				updateGridContents(grid, list, commandField)
+				txV := makeTextViewFromStrings([]string{"List Item 1", text}, 1)
+				updateGridContents(grid, txV, commandField)
 				return
 			}
-			updateGridContents(grid, textView, commandField)
-			textView.SetText(text)
+			updateGridContents(grid, textView1, commandField)
+			textView1.SetText(text)
 		}).
 		SetDoneFunc(func(key tcell.Key) {
 
 		})
 
-	updateGridContents(grid, textView, commandField)
+	updateGridContents(grid, textView1, commandField)
 
 	if err := app.SetRoot(grid, true).SetFocus(grid).Run(); err != nil {
 		panic(err)

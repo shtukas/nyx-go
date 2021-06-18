@@ -1,0 +1,11 @@
+
+CREATE TABLE _nx27s_ (_uuid_ text, _datetime_ text, _type_ text, _description_ text, _payload1_ text);
+
+type Nx27 struct { // Data Carrier
+    uuid     string
+    datetime string
+    type_    string
+    payload  string
+}
+
+In the Go case, the Nx27 is simplier because we just call the payload that way, instead of giving it a specific name. TODO: We should probably do the same for the Ruby case as well

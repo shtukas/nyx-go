@@ -1,0 +1,11 @@
+
+CREATE TABLE _events1_ (_uuid_ text, _datetime_ text, _date_ text, _description_ text);
+
+events1.sqlite3
+
+type NxEvent struct {
+    uuid        string
+    datetime    string
+    date        string
+    description string
+}

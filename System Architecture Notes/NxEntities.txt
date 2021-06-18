@@ -1,0 +1,5 @@
+type NxEntity struct {
+    uuid       string
+    entityType string // "Nx27" | "NxListing" | "NxEvent" | "NxSmartDirectory" | "NxTag"
+    datetime   string // DateTime Iso 8601 UTC Zulu
+}
