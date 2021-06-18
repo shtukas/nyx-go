@@ -58,12 +58,13 @@ func makeTextViewFromStrings(strs []string, selectedLineNumber int) *tview.TextV
 			separator = ""
 		}
 		if i == selectedLineNumber {
-			v = v + " (this one)"
+			v = "[green:#808080:b]" + v + " (this one) [-:-:-]"
 		}
 		text = text + separator + v
 	}
 
 	return tview.NewTextView().
+		SetDynamicColors(true).
 		SetTextAlign(tview.AlignLeft).
 		SetText(text)
 }
