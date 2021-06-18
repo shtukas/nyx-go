@@ -38,14 +38,12 @@ type NxEntity struct {
 	datetime   string
 }
 
-func updateGridContents(grid *tview.Grid, mainElement tview.Primitive, commandField tview.Primitive) {
-	grid.
-		Clear().
-		SetRows(-1, 1).
-		SetColumns(-1).
-		SetBorders(true).
-		AddItem(mainElement, 0, 0, 1, 1, 0, 0, false).
-		AddItem(commandField, 1, 0, 1, 1, 0, 0, true)
+type DisplayConfiguration struct {
+	application  *tview.Application
+	grid         *tview.Grid
+	mainElement  tview.Primitive
+	commandField tview.Primitive
+	focus        tview.Primitive
 }
 
 func makeTextViewFromStrings(strs []string, selectedLineNumber int) *tview.TextView {
@@ -69,6 +67,35 @@ func makeTextViewFromStrings(strs []string, selectedLineNumber int) *tview.TextV
 		SetText(text)
 }
 
+func makeListFromStrings(displayConfig DisplayConfiguration) *tview.List {
+	list := tview.NewList().
+		ShowSecondaryText(false).
+		AddItem("List item 1", "", 0, func() {
+			displayConfig.application.SetFocus(displayConfig.commandField)
+		}).
+		AddItem("List item 2", "", 0, func() {
+			displayConfig.application.SetFocus(displayConfig.commandField)
+		}).
+		AddItem("List item 3", "", 0, func() {
+			displayConfig.application.SetFocus(displayConfig.commandField)
+		}).
+		AddItem("List item 4", "", 0, func() {
+			displayConfig.application.SetFocus(displayConfig.commandField)
+		})
+	return list
+}
+
+func renderDisplayConfiguration(displayConfig DisplayConfiguration) {
+	displayConfig.grid.
+		Clear().
+		SetRows(-1, 1).
+		SetColumns(-1).
+		SetBorders(true).
+		AddItem(displayConfig.mainElement, 0, 0, 1, 1, 0, 0, false).
+		AddItem(displayConfig.commandField, 1, 0, 1, 1, 0, 0, true)
+	displayConfig.application.SetFocus(displayConfig.focus)
+}
+
 func main() {
 	fmt.Println("Nyx")
 	fmt.Println("Nx19", Nx10{"node description", "6c249256-2379-4683-bc31-23bbcce4fd39"})
@@ -78,12 +105,10 @@ func main() {
 	fmt.Println("NxEntity", NxEntity{"6c249256-2379-4683-bc31-23bbcce4fd39", "Nx27", "2021-05-16T18:14:12Z"})
 
 	app := tview.NewApplication()
-
 	grid := tview.NewGrid()
-
 	textView1 := makeTextViewFromStrings([]string{"Hello World"}, -1)
-
 	commandField := tview.NewInputField()
+	displayConfig := DisplayConfiguration{app, grid, textView1, commandField, commandField}
 
 	commandField.
 		SetLabel("> ").
@@ -95,20 +120,28 @@ func main() {
 				return
 			}
 			if text == "list" {
-				txV := makeTextViewFromStrings([]string{"List Item 1", text}, 1)
-				updateGridContents(grid, txV, commandField)
+				list := makeListFromStrings(displayConfig)
+				displayConfig.mainElement = list
+				displayConfig.focus = list
+				renderDisplayConfiguration(displayConfig)
 				return
 			}
-			updateGridContents(grid, textView1, commandField)
 			textView1.SetText(text)
+			displayConfig.mainElement = textView1
+			displayConfig.focus = commandField
+			renderDisplayConfiguration(displayConfig)
 		}).
 		SetDoneFunc(func(key tcell.Key) {
 
 		})
 
-	updateGridContents(grid, textView1, commandField)
+	renderDisplayConfiguration(displayConfig)
 
-	if err := app.SetRoot(grid, true).SetFocus(grid).Run(); err != nil {
+	app.
+		SetRoot(grid, true).
+		SetFocus(grid)
+
+	if err := app.Run(); err != nil {
 		panic(err)
 	}
 
